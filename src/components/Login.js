@@ -22,7 +22,7 @@ const Login = () => {
 
       if (response.ok) {
         alert("Login successful! Redirecting...");
-        navigate("/recipe-search"); // Redirect to recipe search page
+        navigate("/home"); // Redirect to recipe search page
       } else {
         const data = await response.json();
         setError(data.message);
