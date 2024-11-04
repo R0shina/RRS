@@ -1,13 +1,10 @@
 import React, { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-
-import searchImage from "../video/search.jpg"; // Import useNavigate
+import { useNavigate, Link } from "react-router-dom";
 
 const RecipeSearch = () => {
   const [ingredients, setIngredients] = useState("");
   const [recipes, setRecipes] = useState([]);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const navigate = useNavigate();
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -37,22 +34,15 @@ const RecipeSearch = () => {
   };
 
   const handleRecipeClick = (recipe) => {
-    // Navigate to RecipeDetail and pass the recipe as state
     navigate("/recipe-detail", { state: { recipe } });
   };
 
   const handleLogoutClick = () => {
-    // Navigate to the Logout page
     navigate("/logout");
   };
 
   return (
-    <div
-      className="search"
-      style={{
-        backgroundImage: `url(${searchImage})`,
-      }}
-    >
+    <div>
       <header className="heading">
         <h1>Cook Smarter: Find Your Perfect Recipe!</h1>
         <div className="logout-button">

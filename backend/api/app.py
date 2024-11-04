@@ -4,12 +4,14 @@ import ast
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import joblib
+import random
 
 app = Flask(__name__)
-CORS(app)
+# Configure CORS to allow requests from all origins (suitable for development)
+CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Paths for CSV and model
-csv_path = os.path.join(os.path.dirname(__file__), 'dataset/recipes.csv')
+csv_path = os.path.join(os.path.dirname(__file__), '../../dataset/recipes.csv')
 model_path = os.path.join(os.path.dirname(__file__), 'recipe_model.pkl')
 
 # Load and clean the CSV data
@@ -50,6 +52,30 @@ except FileNotFoundError:
     print(f"Model not found: {model_path}")
     model = None
 
+# Memory to store recent searches
+recent_searches = []
+
+# Endpoint for saving recent searches
+@app.route('/api/save-search', methods=['POST'])
+def save_search():
+    data = request.json
+    if 'search_term' not in data:
+        return jsonify({"error": "Missing search term"}), 400
+
+    search_term = data['search_term']
+    if search_term not in recent_searches:
+        recent_searches.append(search_term)
+    
+    # Optional: Limit the number of stored searches
+    if len(recent_searches) > 10:  # Keep the last 10 searches
+        recent_searches.pop(0)
+
+    return jsonify({"message": "Search term saved"}), 200
+
+# Endpoint for retrieving recent searches
+@app.route('/api/recent-searches', methods=['GET'])
+def get_recent_searches():
+    return jsonify(recent_searches)
 
 # Endpoint for predictions
 @app.route('/api/predict', methods=['POST'])
@@ -69,7 +95,7 @@ def predict():
     input_data = pd.DataFrame({
         'minutes': [data['minutes']],
         'n_steps': [data['n_steps']],
-        'name': [data['name']]  # Ensure that the 'name' feature is preprocessed or encoded as needed
+        'name': [data['name']]
     })
 
     # Make predictions using the model
@@ -78,12 +104,10 @@ def predict():
     # Return the prediction as JSON
     return jsonify({"predicted_n_ingredients": prediction[0]})
 
-
 # Endpoint for retrieving recipes based on predictions
 @app.route('/api/predicted-recipes', methods=['POST'])
 def predicted_recipes():
     data = request.json
-    print("Received data:", data)  # Debugging line
 
     if 'predicted_n_ingredients' not in data:
         return jsonify({"error": "Missing predicted_n_ingredients in request"}), 400
@@ -100,6 +124,26 @@ def predicted_recipes():
 
     return jsonify(filtered_recipes)
 
+# Endpoint for fetching recipe suggestions
+@app.route('/api/suggestions', methods=['GET'])
+def get_suggestions():
+    try:
+        if not json_data:
+            return jsonify({"error": "No recipes available"}), 404
+        
+        # Get recent searches to filter suggestions
+        recent_suggestions = []
+        for search in recent_searches:
+            filtered = [recipe for recipe in json_data if search.lower() in recipe['name'].lower()]
+            recent_suggestions.extend(filtered)
+        
+        # Randomly sample from the filtered suggestions or use all if not enough
+        suggestions = random.sample(recent_suggestions, min(5, len(recent_suggestions))) if recent_suggestions else random.sample(json_data, min(5, len(json_data)))
+        
+        return jsonify(suggestions)
+    
+    except Exception as e:
+        return jsonify({"error": str(e)}), 500
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5005)  # Update here to run on port 5005
+    app.run(debug=True, port=5005)  # Run the app on port 5005
