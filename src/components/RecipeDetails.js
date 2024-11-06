@@ -1,7 +1,8 @@
 import React from "react";
 import { useLocation } from "react-router-dom";
+import RecipeSuggestions from "./RecipeSuggestions"; // Import the suggestions component
 import "../../src/App.css"; // Import the CSS file
-import searchImage from "../video/step.jpg"; // Import useNavigate
+import searchImage from "../video/step.jpg";
 
 const RecipeDetail = () => {
   const location = useLocation();
@@ -21,21 +22,10 @@ const RecipeDetail = () => {
     >
       <div className="recipie-div">
         <div className="recipe-detail">
-          {" "}
-          {/* Apply the CSS class here */}
           <h2>{recipe.name}</h2>
-          {/* <p>
-          <strong>ID:</strong> {recipe.id}
-        </p> */}
           <p>
             <strong>Preparation Time:</strong> {recipe.minutes} minutes
           </p>
-          {/* <p>
-          <strong>Contributor ID:</strong> {recipe.contributor_id}
-        </p> */}
-          {/* <p>
-          <strong>Submitted:</strong> {recipe.submitted}
-        </p> */}
           <div className="nutrition">
             <strong>Nutrition:</strong> {JSON.stringify(recipe.nutrition)}
           </div>
@@ -60,7 +50,7 @@ const RecipeDetail = () => {
           <p>
             <strong>Number of Ingredients:</strong> {recipe.n_ingredients}
           </p>
-          <p>
+          {/* <p>
             <strong>Tags:</strong>{" "}
             {Array.isArray(recipe.tags)
               ? recipe.tags.map((tag) => (
@@ -68,10 +58,13 @@ const RecipeDetail = () => {
                     {tag}
                   </span>
                 ))
-              : recipe.tags || "No tags available"}
-          </p>
+              : "No tags available"}
+          </p> */}
         </div>
       </div>
+
+      {/* Add RecipeSuggestions section */}
+      <RecipeSuggestions />
     </div>
   );
 };

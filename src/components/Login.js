@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import videoFile from "../video/video.mp4"; // Import the video file
 
@@ -7,6 +7,13 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  // Check if the user is already logged in
+  useEffect(() => {
+    if (localStorage.getItem("isLoggedIn")) {
+      navigate("/home"); // Redirect to home if already logged in
+    }
+  }, [navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -21,11 +28,13 @@ const Login = () => {
       });
 
       if (response.ok) {
+        // Save the logged-in status
+        localStorage.setItem("isLoggedIn", true); // You can adjust this to match your auth system
         alert("Login successful! Redirecting...");
         navigate("/home"); // Redirect to recipe search page
       } else {
         const data = await response.json();
-        setError(data.message);
+        setError(data.message); // Display error message if login fails
       }
     } catch (error) {
       console.error("Error during login:", error);

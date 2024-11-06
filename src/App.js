@@ -8,7 +8,9 @@ import RecipeSearch from "./components/RecipeSearch";
 import RecipeDetail from "./components/RecipeDetails";
 import PredictedRecipes from "./components/PredictedRecipes";
 import RecipeSuggestions from "./components/RecipeSuggestions";
+import PrivateRoute from "./components/PrivateRoute";  // Import PrivateRoute
 import "./App.css"; // Optional: import for any custom CSS
+
 
 function App() {
   return (
@@ -18,11 +20,26 @@ function App() {
           <Routes>
             <Route path="/" element={<Login />} />
             <Route path="/signup" element={<Signup />} />
-            <Route path="/home" element={<Home />} />
-            <Route path="/recipe-search" element={<RecipeSearch />} />
-            <Route path="/recipe-detail" element={<RecipeDetail />} />
-            <Route path="/predicted-recipes" element={<PredictedRecipes />} />
-            <Route path="/recipe-suggestions" element={<RecipeSuggestions />} />
+            <Route
+              path="/home"
+              element={<PrivateRoute element={<Home />} />}  // Protect Home route
+            />
+            <Route
+              path="/recipe-search"
+              element={<PrivateRoute element={<RecipeSearch />} />}  // Protect Recipe Search route
+            />
+            <Route
+              path="/recipe-detail"
+              element={<PrivateRoute element={<RecipeDetail />} />}  // Protect Recipe Detail route
+            />
+            <Route
+              path="/predicted-recipes"
+              element={<PrivateRoute element={<PredictedRecipes />} />}  // Protect Predicted Recipes route
+            />
+            <Route
+              path="/recipe-suggestions"
+              element={<PrivateRoute element={<RecipeSuggestions />} />}  // Protect Recipe Suggestions route
+            />
             <Route path="/logout" element={<Logout />} />
           </Routes>
         </main>
