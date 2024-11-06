@@ -44,7 +44,8 @@ const RecipeSearch = () => {
   return (
     <div>
       <header className="heading">
-        <h1>Cook Smarter: Find Your Perfect Recipe!</h1>
+        <h1>Welcome to the Recipe Recommendation System</h1>
+        <h2>Cook Smarter: Find Your Perfect Recipe!</h2>
         <div className="logout-button">
           <button onClick={handleLogoutClick} style={{ float: "right" }}>
             Logout
@@ -52,7 +53,7 @@ const RecipeSearch = () => {
         </div>
       </header>
       <div className="searchpage">
-        <Link to="/predicted-recipes">See Predicted Recipes</Link>
+        {/* <Link to="/predicted-recipes">See Predicted Recipes</Link> */}
 
         <form onSubmit={handleSubmit}>
           <div>

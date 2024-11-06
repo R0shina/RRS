@@ -1,12 +1,15 @@
+// RecipeSuggestions.js
 import React, { useEffect, useState } from "react";
 import Slider from "react-slick";
 import "slick-carousel/slick/slick.css";
 import "slick-carousel/slick/slick-theme.css";
+import { useNavigate } from "react-router-dom";
 
 const RecipeSuggestions = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchSuggestions = async () => {
@@ -37,15 +40,16 @@ const RecipeSuggestions = () => {
     return <p>Error: {error}</p>;
   }
 
-  // Slider settings for showing 3 recipes at once
+  // Slider settings
   const settings = {
     dots: true,
     infinite: true,
     speed: 500,
     slidesToShow: 3,
-    slidesToScroll: 3, 
-    autoplay: true,
+    slidesToScroll: 3,
+    autoplay: false,
     autoplaySpeed: 3000,
+    arrows: false,
   };
 
   return (
@@ -56,11 +60,21 @@ const RecipeSuggestions = () => {
       ) : (
         <Slider {...settings}>
           {suggestions.map((recipe, index) => (
-            <div key={index} className="recipe-slide">
-              <h3>{recipe.name}</h3>
-              <p>
-                <strong>Ingredients:</strong> {recipe.ingredients.join(", ")}
-              </p>
+            <div className="recipe-slide">
+              <div className="recipie-inside" key={index}>
+                <h3>{recipe.name}</h3>
+                <p>
+                  <strong>Ingredients:</strong> {recipe.ingredients.join(", ")}
+                </p>
+                <button
+                  onClick={() =>
+                    navigate(`/recipe-detail`, { state: { recipe } })
+                  }
+                  className="view-recipe-button"
+                >
+                  View Full Recipe
+                </button>
+              </div>
             </div>
           ))}
         </Slider>

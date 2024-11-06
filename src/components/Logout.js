@@ -1,6 +1,6 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
-
+import { logout } from "../utils/auth"; // Import the logout utility function
 
 const Logout = () => {
   const navigate = useNavigate();
@@ -10,8 +10,8 @@ const Logout = () => {
     const confirmLogout = window.confirm("Are you sure you want to log out?");
 
     if (confirmLogout) {
-      // Clear any user data or tokens (if applicable)
-      localStorage.removeItem("user"); // Adjust this according to your storage method
+      // Call the logout function to clear the login state
+      logout(); // This will remove the authentication flag from localStorage
       alert("You have logged out successfully.");
       navigate("/"); // Redirect to the login page
     } else {
@@ -21,8 +21,8 @@ const Logout = () => {
   };
 
   return (
-      <div className="logout-container">
-    <div>
+    <div className="logout-container">
+      <div>
         <h2>Logout</h2>
         <p>Are you sure you want to log out?</p>
         <button onClick={handleLogout}>Logout</button>

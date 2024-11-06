@@ -1,3 +1,4 @@
+// components/Home.js
 import React from "react";
 import RecipeSearch from "./RecipeSearch";
 import searchImage from "../video/search.jpg";
@@ -6,7 +7,7 @@ import RecipeSuggestions from "./RecipeSuggestions";
 const Home = () => {
   return (
     <div
-      className="search"
+      className="home_banner"
       style={{
         backgroundImage: `url(${searchImage})`,
         backgroundSize: "cover",
@@ -14,7 +15,6 @@ const Home = () => {
         textAlign: "center",
       }}
     >
-      <h1>Welcome to the Recipe Recommendation System</h1>
       <RecipeSearch />
       <RecipeSuggestions />
     </div>
