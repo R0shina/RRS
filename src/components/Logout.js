@@ -1,5 +1,7 @@
 import React from "react";
 import { useNavigate } from "react-router-dom";
+import searchImage from "../video/search.jpg";
+
 import { logout } from "../utils/auth"; // Import the logout utility function
 
 const Logout = () => {
@@ -21,8 +23,16 @@ const Logout = () => {
   };
 
   return (
-    <div className="logout-container">
-      <div>
+    <div
+      className="home_banner logout-container"
+      style={{
+        backgroundImage: `url(${searchImage})`,
+        backgroundSize: "cover",
+        color: "white",
+        textAlign: "center",
+      }}
+    >
+      <div className="">
         <h2>Logout</h2>
         <p>Are you sure you want to log out?</p>
         <button onClick={handleLogout}>Logout</button>

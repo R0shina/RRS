@@ -3,6 +3,7 @@ import React from "react";
 import RecipeSearch from "./RecipeSearch";
 import searchImage from "../video/search.jpg";
 import RecipeSuggestions from "./RecipeSuggestions";
+// import Logout from "./Logout"
 
 const Home = () => {
   return (
@@ -17,6 +18,7 @@ const Home = () => {
     >
       <RecipeSearch />
       <RecipeSuggestions />
+      {/* <Logout/> */}
     </div>
   );
 };

@@ -60,8 +60,8 @@ const RecipeSuggestions = () => {
       ) : (
         <Slider {...settings}>
           {suggestions.map((recipe, index) => (
-            <div className="recipe-slide">
-              <div className="recipie-inside" key={index}>
+            <div className="recipe-slide" key={index}>
+              <div className="recipie-inside">
                 <h3>{recipe.name}</h3>
                 <p>
                   <strong>Ingredients:</strong> {recipe.ingredients.join(", ")}
