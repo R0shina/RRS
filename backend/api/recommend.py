@@ -83,26 +83,23 @@ def recommend():
         print(f"Cosine Similarities: {cosine_similarities}")
         print(f"Recommended recipes before filtering: {recommended_recipes}")
 
-        # Temporary: Relaxing the filtering to check if recommendations come through
-        filtered_recipes = recommended_recipes
+        # Relaxing the filtering to check if recommendations come through
+        filtered_recipes = []
 
         # Filter recipes based on nutritional preferences if provided
-        if calories or protein or fat or carbohydrates:
-            filtered_recipes = []
-            for recipe in recommended_recipes:
-                # Debug: Log recipe before filtering
-                print(f"Checking recipe: {recipe.get('name')} with calories={recipe.get('calories')} protein={recipe.get('protein')}")
-                
-                # Filter based on provided preferences
-                if (
-                    (calories is None or recipe.get('calories', 0) <= calories) and
-                    (protein is None or recipe.get('protein', 0) >= protein) and
-                    (fat is None or recipe.get('fat', 0) <= fat) and
-                    (carbohydrates is None or recipe.get('carbs', 0) <= carbohydrates)
-                ):
-                    filtered_recipes.append(recipe)
-                else:
-                    print(f"Recipe {recipe.get('name')} excluded due to preference filter")
+        for recipe in recommended_recipes:
+            # Log nutritional values of the recommended recipes before applying filter
+            print(f"Checking recipe: {recipe.get('name')} with calories={recipe.get('calories')} protein={recipe.get('protein')} fat={recipe.get('fat')} carbs={recipe.get('carbs')}")
+
+            if (
+                (calories == 0 or recipe.get('calories', 0) <= calories + 50) and  # Allow +50 calorie difference
+                (protein == 0 or recipe.get('protein', 0) >= protein - 5) and  # Allow -5g difference in protein
+                (fat == 0 or recipe.get('fat', 0) <= fat + 5) and  # Allow +5g difference in fat
+                (carbohydrates == 0 or recipe.get('carbs', 0) <= carbohydrates + 10)  # Allow +10g difference in carbs
+            ):
+                filtered_recipes.append(recipe)
+            else:
+                print(f"Recipe {recipe.get('name')} excluded due to preference filter")
 
         # Log the final recommendations
         print(f"Final recommended recipes: {filtered_recipes}")
@@ -117,5 +114,3 @@ def recommend():
 
 if __name__ == '__main__':
     app.run(debug=True, port=5001)  # Use port 5001 for this API
-
-# Bhako 

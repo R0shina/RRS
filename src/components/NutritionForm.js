@@ -5,34 +5,20 @@ function NutritionForm() {
   const [protein, setProtein] = useState("");
   const [fat, setFat] = useState("");
   const [carbohydrates, setCarbohydrates] = useState("");
-  const [ingredients, setIngredients] = useState("");
+  const [ingredients, setIngredients] = useState(""); // New state for ingredients
   const [recipes, setRecipes] = useState([]);
   const [error, setError] = useState(null);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
 
+    // Convert comma-separated string into an array of ingredients
     const ingredientsList = ingredients
       .split(",")
-      .map((ingredient) => ingredient.trim())
-      .filter(Boolean);
+      .map((ingredient) => ingredient.trim());
 
-    if (!calories || !protein || !fat || !carbohydrates) {
-      setError("Please fill in all nutritional fields.");
-      return;
-    }
-
-    if (
-      isNaN(calories) ||
-      isNaN(protein) ||
-      isNaN(fat) ||
-      isNaN(carbohydrates)
-    ) {
-      setError("Please enter valid numeric values for all nutritional fields.");
-      return;
-    }
-
-    console.log("Submitting values:", {
+    // Log the form data before sending the request
+    console.log("Submitting nutritional values and ingredients:", {
       calories,
       protein,
       fat,
@@ -41,6 +27,7 @@ function NutritionForm() {
     });
 
     try {
+      // Call your backend API with the nutritional values and ingredients
       const response = await fetch("http://localhost:5001/api/recommend", {
         method: "POST",
         headers: {
@@ -52,102 +39,108 @@ function NutritionForm() {
         }),
       });
 
+      // Log the response status and the response body
+      console.log("API response status:", response.status);
       const data = await response.json();
-      console.log("Received data:", data);
 
+      // Log the data received from the backend
+      console.log("API response data:", data);
+
+      // Update the state with recipe suggestions
       if (response.ok) {
-        setRecipes(data.recipes || []);
+        setRecipes(data.recipes); // Assuming your API returns a 'recipes' field
         setError(null);
       } else {
         setError("An error occurred. Please try again.");
-        setRecipes([]);
+        setRecipes([]); // Clear recipes if there's an error
       }
     } catch (error) {
       console.error("Fetch error:", error);
       setError("An error occurred. Please try again.");
-      setRecipes([]);
+      setRecipes([]); // Clear recipes if there's an error
     }
   };
 
   return (
     <div>
-      <h1>Recipe Recommendation</h1>
+      <h2>Enter Desired Nutritional Values</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Calories:</label>
+          <label htmlFor="calories">Calories:</label>
           <input
             type="number"
+            id="calories"
             value={calories}
             onChange={(e) => setCalories(e.target.value)}
             required
           />
         </div>
+
         <div>
-          <label>Protein:</label>
+          <label htmlFor="protein">Protein (g):</label>
           <input
             type="number"
+            id="protein"
             value={protein}
             onChange={(e) => setProtein(e.target.value)}
             required
           />
         </div>
+
         <div>
-          <label>Fat:</label>
+          <label htmlFor="fat">Fat (g):</label>
           <input
             type="number"
+            id="fat"
             value={fat}
             onChange={(e) => setFat(e.target.value)}
             required
           />
         </div>
+
         <div>
-          <label>Carbohydrates:</label>
+          <label htmlFor="carbohydrates">Carbohydrates (g):</label>
           <input
             type="number"
+            id="carbohydrates"
             value={carbohydrates}
             onChange={(e) => setCarbohydrates(e.target.value)}
             required
           />
         </div>
+
         <div>
-          <label>Ingredients (comma-separated):</label>
+          <label htmlFor="ingredients">Ingredients (comma-separated):</label>
           <input
             type="text"
+            id="ingredients"
             value={ingredients}
             onChange={(e) => setIngredients(e.target.value)}
-            required
+            placeholder="e.g., chicken, rice, beans"
           />
         </div>
-        <button type="submit">Get Recommendations</button>
+
+        <button type="submit">Get Recipe Recommendations</button>
       </form>
 
-      {error && <div style={{ color: "red" }}>{error}</div>}
+      {/* Display error message if there's an error */}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <div>
-        <h2>Recommended Recipes</h2>
-        {recipes.length === 0 ? (
-          <p>No recipes found based on your preferences.</p>
+      {/* Display recipe suggestions if any */}
+      <h3>Recipe Suggestions</h3>
+      <ul>
+        {recipes.length > 0 ? (
+          recipes.map((recipe, index) => (
+            <li key={index}>
+              <strong>{recipe.name}</strong> - Calories: {recipe.calories},
+              Protein: {recipe.protein}g, Fat: {recipe.fat}g, Carbs:{" "}
+              {recipe.carbs}g
+            </li>
+          ))
         ) : (
-          <ul>
-            {recipes.map((recipe) => (
-              <li key={recipe.id}>
-                <h3>{recipe.name}</h3>
-                <p>{recipe.description || "No description available"}</p>
-                <p>
-                  Ingredients:{" "}
-                  {Array.isArray(recipe.ingredients)
-                    ? recipe.ingredients.join(", ")
-                    : recipe.ingredients}
-                </p>
-                <p>Time to cook: {recipe.minutes || "N/A"} minutes</p>
-                <button onClick={() => alert(`See full recipe: ${recipe.id}`)}>
-                  See full recipe
-                </button>
-              </li>
-            ))}
-          </ul>
+          <p>No recipes found. Try different nutritional values.</p>
         )}
-      </div>
+      </ul>
     </div>
   );
 }
