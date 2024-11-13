@@ -1,24 +1,27 @@
-import pandas as pd
 import os
 import ast
+import pandas as pd
 from flask import Flask, jsonify, request
-from flask_cors import CORS
 import joblib
 import random
+from flask_cors import CORS
 
+
+# Enable CORS for the entire app
+
+# Initialize the Flask app
 app = Flask(__name__)
-# Configure CORS to allow requests from all origins (suitable for development)
-CORS(app, resources={r"/api/*": {"origins": "*"}})
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}}) 
 
-# Paths for CSV and model
+# Paths for CSV and model files
 csv_path = os.path.join(os.path.dirname(__file__), '../../dataset/recipes.csv')
 model_path = os.path.join(os.path.dirname(__file__), 'recipe_model.pkl')
 
-# Load and clean the CSV data
+# Load the dataset and clean the data
 if os.path.exists(csv_path):
     data = pd.read_csv(csv_path, quotechar='"', skipinitialspace=True)
 
-    # Clean up data columns
+    # Clean up specific columns
     columns_to_clean = ['contributor_id', 'description', 'id', 'ingredients',
                         'minutes', 'n_ingredients', 'n_steps', 'name',
                         'nutrition', 'steps', 'submitted', 'tags']
@@ -31,10 +34,10 @@ if os.path.exists(csv_path):
     for col in list_columns:
         data[col] = data[col].apply(lambda x: ast.literal_eval(x) if isinstance(x, str) and x.startswith('[') else x)
 
-    # Replace NaN values with an empty string
+    # Replace NaN values with empty strings
     data.fillna(value="", inplace=True)
 
-    # Convert DataFrame to JSON for quick access
+    # Convert DataFrame to JSON for easier access
     json_data = data.to_dict(orient='records')
 
     @app.route('/api/recipes', methods=['GET'])
@@ -56,7 +59,6 @@ except FileNotFoundError:
 recent_searches = []
 
 
-# Endpoint for saving recent searches
 @app.route('/api/save-search', methods=['POST'])
 def save_search():
     data = request.json
@@ -66,98 +68,106 @@ def save_search():
     search_term = data['search_term']
     if search_term not in recent_searches:
         recent_searches.append(search_term)
-    
-    # Optional: Limit the number of stored searches
-    if len(recent_searches) > 10:  # Keep the last 10 searches
+
+    # Optional: Limit the number of stored searches (keep last 10)
+    if len(recent_searches) > 10:
         recent_searches.pop(0)
 
     return jsonify({"message": "Search term saved"}), 200
 
 
-# Endpoint for retrieving recent searches
 @app.route('/api/recent-searches', methods=['GET'])
 def get_recent_searches():
     return jsonify(recent_searches)
 
 
-# Endpoint for predictions
 @app.route('/api/predict', methods=['POST'])
 def predict():
     if model is None:
         return jsonify({"error": "Model not loaded"}), 500
 
-    # Get JSON data from the request
-    data = request.json
-
     # Ensure required fields are present
+    data = request.json
     required_fields = ['minutes', 'n_steps', 'name']
     if not all(field in data for field in required_fields):
         return jsonify({"error": "Missing data for prediction"}), 400
 
-    # Prepare the input data for prediction
+    # Prepare input data for prediction
     input_data = pd.DataFrame({
         'minutes': [data['minutes']],
         'n_steps': [data['n_steps']],
         'name': [data['name']]
     })
 
-    # Make predictions using the model
+    # Predict the number of ingredients using the model
     prediction = model.predict(input_data)
 
-    # Return the prediction as JSON
     return jsonify({"predicted_n_ingredients": prediction[0]})
 
 
-# Endpoint for retrieving recipes based on predictions
-@app.route('/api/predicted-recipes', methods=['POST'])
-def predicted_recipes():
-    data = request.json
+@app.route('/api/predict-recipes', methods=['POST'])
+def predict_recipes():
+    data = request.get_json()
+    preferences = data.get('preferences', {})
+    ingredients = data.get('ingredients', [])
 
-    if 'predicted_n_ingredients' not in data:
-        return jsonify({"error": "Missing predicted_n_ingredients in request"}), 400
+    # Extracting nutritional preferences (calories, protein, fat, carbs)
+    max_calories = preferences.get('calories', float('inf'))
+    max_protein = preferences.get('protein', float('inf'))
+    max_fat = preferences.get('fat', float('inf'))
+    max_carbs = preferences.get('carbs', float('inf'))
 
-    predicted_n_ingredients = data['predicted_n_ingredients']
-
-    # Filter the recipes based on the predicted number of ingredients
-    filtered_recipes = [
-        recipe for recipe in json_data if recipe.get('n_ingredients') == predicted_n_ingredients
+    # Filtering recipes based on nutritional preferences
+    filtered_recipes = recipes_df[
+        (recipes_df['calories'] <= max_calories) & 
+        (recipes_df['protein'] <= max_protein) & 
+        (recipes_df['fat'] <= max_fat) & 
+        (recipes_df['carbs'] <= max_carbs)
     ]
 
-    if not filtered_recipes:
-        return jsonify({"message": "No recipes found for the predicted number of ingredients"}), 404
+    # Further filtering based on ingredients (simple string matching)
+    if ingredients:
+        filtered_recipes = filtered_recipes[
+            filtered_recipes['ingredients'].apply(lambda x: all(ingredient.lower() in x.lower() for ingredient in ingredients))
+        ]
 
-    return jsonify(filtered_recipes)
+    if filtered_recipes.empty:
+        # Log and return empty result with a message
+        print("No recipes found for the given preferences and ingredients.")
+        return jsonify({"recipes": [], "message": "No recipes found based on the selected preferences."})
+
+    # Returning the filtered recipes in the desired format
+    recipes_list = filtered_recipes[['name', 'ingredients', 'steps']].to_dict(orient='records')
+    return jsonify({"recipes": recipes_list, "message": "Recipes found successfully."})
 
 
-# Endpoint for fetching recipe suggestions
 @app.route('/api/suggestions', methods=['GET'])
 def get_suggestions():
     try:
         if not json_data:
             return jsonify({"error": "No recipes available"}), 404
         
-        search_term = request.args.get('ingredient', "").lower()  # Get the search term
-        # Get pagination parameters (default to page 1 and 5 items per page)
-        page = int(request.args.get('page', 1))
-        limit = int(request.args.get('limit', 5))
+        # Retrieve the search term and pagination parameters
+        search_term = request.args.get('ingredient', "").lower()
+        page = max(1, int(request.args.get('page', 1)))
+        limit = max(1, int(request.args.get('limit', 5)))
 
-        # Calculate the start and end indices for the pagination
+        # Calculate start and end indices for pagination
         start_index = (page - 1) * limit
         end_index = start_index + limit
 
-        # Filter recipes based on ingredient or recent searches
-        recent_suggestions = []
+        # Filter recipes based on search term (if provided)
         if search_term:
-            for search in recent_searches:
-                filtered = [recipe for recipe in json_data if search_term in recipe['name'].lower()]
-                recent_suggestions.extend(filtered)
-
-            suggestions = random.sample(recent_suggestions, min(limit, len(recent_suggestions))) if recent_suggestions else random.sample(json_data, min(limit, len(json_data)))
+            filtered_recipes = [
+                recipe for recipe in json_data
+                if search_term in recipe['name'].lower() or
+                   any(search_term in ingredient.lower() for ingredient in recipe.get('ingredients', []))
+            ]
+            suggestions = filtered_recipes[start_index:end_index] if filtered_recipes else random.sample(json_data, min(limit, len(json_data)))
         else:
             suggestions = random.sample(json_data, min(limit, len(json_data)))
 
-        # Paginate the filtered suggestions
-        return jsonify(suggestions[start_index:end_index])
+        return jsonify(suggestions)
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
@@ -166,33 +176,31 @@ def get_suggestions():
 @app.route('/api/search', methods=['POST'])
 def search_recipes():
     data = request.json
-    search_term = data.get('ingredient', "").lower()  # The partial ingredient name entered by the user
-    
+    search_term = data.get('ingredient', "").lower()
+
     # Get pagination parameters (default to page 1 and 10 items per page)
     page = int(request.args.get('page', 1))
     limit = int(request.args.get('limit', 10))
 
-    # Calculate the start and end indices for the pagination
+    # Calculate start and end indices for pagination
     start_index = (page - 1) * limit
     end_index = start_index + limit
 
-    # Filter recipes that contain the search term in their ingredients list
+    # Filter recipes based on the search term in their ingredients
     filtered_recipes = [
         recipe for recipe in json_data
         if any(search_term in ingredient.lower() for ingredient in recipe.get('ingredients', []))
     ]
 
-    # Return the filtered recipes (with pagination)
     return jsonify(filtered_recipes[start_index:end_index])
 
 
-# Endpoint for retrieving recipes based on selected ingredient
 @app.route('/api/ingredient-recipes', methods=['POST'])
 def ingredient_recipes():
     data = request.json
     ingredient = data.get('ingredient', "").lower()
 
-    # Filter recipes that contain the selected ingredient
+    # Filter recipes based on the selected ingredient
     filtered_recipes = [
         recipe for recipe in json_data
         if any(ingredient in ingredient_name.lower() for ingredient_name in recipe.get('ingredients', []))
@@ -204,41 +212,38 @@ def ingredient_recipes():
     return jsonify(filtered_recipes)
 
 
-if __name__ == '__main__':
-    app.run(debug=True, port=5005)  # Run the app on port 5005
+def predict_recipes():
+    preferences = request.json.get('preferences', {})
 
-
-# @app.route('/api/suggestions', methods=['GET'])
-# def get_suggestions():
-#     try:
-#         if not json_data:
-#             return jsonify({"error": "No recipes available"}), 404
-        
-#         search_term = request.args.get('ingredient', "").lower()  # Get the search term
-#         recent_suggestions = []
-#         for search in recent_searches:
-#             filtered = [recipe for recipe in json_data if search_term in recipe['name'].lower()]
-#             recent_suggestions.extend(filtered)
-        
-#         # Randomly sample from the filtered suggestions or use all if not enough
-#         suggestions = random.sample(recent_suggestions, min(5, len(recent_suggestions))) if recent_suggestions else random.sample(json_data, min(5, len(json_data)))
-        
-#         return jsonify(suggestions)
+    # Extract user preferences
+    preferred_calories = preferences.get('calories', 0)
+    preferred_protein = preferences.get('protein', 0)
+    preferred_fat = preferences.get('fat', 0)
+    preferred_carbs = preferences.get('carbs', 0)
     
-#     except Exception as e:
-#         return jsonify({"error": str(e)}), 500
+    # Filter recipes based on nutritional preferences
+    filtered_data = data[
+        (data['calories'] <= preferred_calories) & 
+        (data['protein'] >= preferred_protein) & 
+        (data['fat'] <= preferred_fat) & 
+        (data['carbs'] <= preferred_carbs)
+    ]
+
+    if filtered_data.empty:
+        return jsonify({"error": "No recipes match your criteria."}), 404
+
+    # Prepare data for prediction
+    X = filtered_data[['minutes', 'n_steps', 'name', 'calories', 'protein', 'fat', 'carbs']]
+    
+    # Use the model to predict the number of ingredients
+    filtered_data['predicted_ingredients'] = model.predict(X)
+
+    # Return the top recommended recipes
+    recommended_recipes = filtered_data[['name', 'minutes', 'calories', 'protein', 'fat', 'carbs']].head(10)
+    recommendations = recommended_recipes.to_dict(orient='records')
+
+    return jsonify(recommendations)
 
 
-# @app.route('/api/search', methods=['POST'])
-# def search_recipes():
-#     data = request.json
-#     search_term = data.get('ingredient', "").lower()  # The partial ingredient name entered by the user
-
-#     # Filter recipes that contain the search term in their ingredients list
-#     filtered_recipes = [
-#         recipe for recipe in json_data
-#         if any(search_term in ingredient.lower() for ingredient in recipe.get('ingredients', []))
-#     ]
-
-#     # Return the filtered recipes (limit to 5 for performance)
-#     return jsonify(filtered_recipes[:5]) if filtered_recipes else jsonify({"message": "No matching recipes found"}), 200
+if __name__ == '__main__':
+    app.run(debug=True, port=5005)
