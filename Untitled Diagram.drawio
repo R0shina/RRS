@@ -605,39 +605,39 @@
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="zVFzAMCCulww1tuRlH-K-189" value="&lt;span class=&quot;hljs-keyword&quot;&gt;User&lt;/span&gt; Interface" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="3460" y="-95.75" width="120" height="60" as="geometry" />
+          <mxGeometry x="3830" y="117.25" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="zVFzAMCCulww1tuRlH-K-190" value="Model Data (CSV&lt;span class=&quot;hljs-operator&quot;&gt;/&lt;/span&gt;Model File)&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="3820" y="4.25" width="120" height="60" as="geometry" />
+          <mxGeometry x="4190" y="217.25" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="zVFzAMCCulww1tuRlH-K-205" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="zVFzAMCCulww1tuRlH-K-191" target="zVFzAMCCulww1tuRlH-K-190">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="zVFzAMCCulww1tuRlH-K-191" value="&amp;nbsp;ML Model&amp;nbsp; &amp;nbsp;&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="3820" y="-95.75" width="120" height="60" as="geometry" />
+          <mxGeometry x="4190" y="117.25" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="zVFzAMCCulww1tuRlH-K-192" value="&#xa;   Recipe Database (CSV&lt;span class=&quot;hljs-operator&quot;&gt;/&lt;/span&gt;DB)&#xa;&#xa;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="3640" y="4.25" width="120" height="60" as="geometry" />
+          <mxGeometry x="4010" y="217.25" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="zVFzAMCCulww1tuRlH-K-204" value="" style="edgeStyle=orthogonalEdgeStyle;rounded=0;orthogonalLoop=1;jettySize=auto;html=1;" edge="1" parent="1" source="zVFzAMCCulww1tuRlH-K-193" target="zVFzAMCCulww1tuRlH-K-192">
           <mxGeometry relative="1" as="geometry" />
         </mxCell>
         <mxCell id="zVFzAMCCulww1tuRlH-K-193" value="Backend (Flask)&amp;nbsp;" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="3640" y="-95.75" width="120" height="60" as="geometry" />
+          <mxGeometry x="4010" y="117.25" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="zVFzAMCCulww1tuRlH-K-194" value="&lt;span class=&quot;hljs-keyword&quot;&gt;User&lt;/span&gt; Data (LocalStorage)" style="rounded=0;whiteSpace=wrap;html=1;" vertex="1" parent="1">
-          <mxGeometry x="3460" y="4.25" width="120" height="60" as="geometry" />
+          <mxGeometry x="3830" y="217.25" width="120" height="60" as="geometry" />
         </mxCell>
         <mxCell id="zVFzAMCCulww1tuRlH-K-200" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1" source="zVFzAMCCulww1tuRlH-K-189" target="zVFzAMCCulww1tuRlH-K-193">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="3650" y="90" as="sourcePoint" />
-            <mxPoint x="3700" y="40" as="targetPoint" />
+            <mxPoint x="4020" y="303" as="sourcePoint" />
+            <mxPoint x="4070" y="253" as="targetPoint" />
           </mxGeometry>
         </mxCell>
         <mxCell id="zVFzAMCCulww1tuRlH-K-202" value="" style="endArrow=classic;startArrow=classic;html=1;rounded=0;exitX=1;exitY=0.5;exitDx=0;exitDy=0;entryX=0;entryY=0.5;entryDx=0;entryDy=0;" edge="1" parent="1">
           <mxGeometry width="50" height="50" relative="1" as="geometry">
-            <mxPoint x="3760" y="-66.28" as="sourcePoint" />
-            <mxPoint x="3820" y="-66.28" as="targetPoint" />
+            <mxPoint x="4130" y="146.72" as="sourcePoint" />
+            <mxPoint x="4190" y="146.72" as="targetPoint" />
           </mxGeometry>
         </mxCell>
       </root>
