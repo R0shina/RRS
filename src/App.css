@@ -19,8 +19,6 @@
   font-weight: 900;
 }
 
-
-
 h1 {
   color: white;
   font-size: 2em;
@@ -38,18 +36,14 @@ body {
   margin: -24px 0px !important;
 }
 
-
-
 .heading {
   padding-top: 20px;
 }
 
 h2 {
   margin-bottom: 10px;
-    font-family: "Italiana", sans-serif;
-      font-size: 1.5em;
-
-
+  font-family: "Italiana", sans-serif;
+  font-size: 1.5em;
 }
 
 .App-header {
@@ -332,8 +326,20 @@ label {
   background-attachment: fixed;
 }
 
-.recomendation,
+.recomendation {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .searchpage {
+  width: 100%;
+  /* display: flex; */
+  justify-content: center;
+  align-items: center;
+}
+.searchcontainer {
   width: 100%;
   display: flex;
   justify-content: center;
@@ -341,10 +347,42 @@ label {
 }
 
 .predicted-recipes-container {
-  max-width: 1200px;
+  /* max-width: 1200px; */
   margin: 0 auto;
   padding: 20px;
   text-align: center;
+}
+
+.suggestions-list {
+  display: flex;
+  justify-content: center;
+}
+
+.suggestions-dropdown {
+  /* position: absolute; */
+  top: 45px; /* Position just below the input */
+  left: 0;
+  width: 50%;
+  max-height: 200px;
+  overflow-y: auto;
+  border-radius: 5px;
+  z-index: 100;
+}
+
+.suggestions-dropdown ul {
+  padding: 0;
+  margin: 0;
+  list-style: none;
+}
+
+.suggestions-dropdown li {
+  padding: 10px;
+  cursor: pointer;
+}
+
+.suggestions-dropdown li:hover {
+  background-color: #f0f0f0;
+  color : #99afccbf;
 }
 
 /* Recipe Grid Styles */
@@ -402,14 +440,13 @@ label {
   margin-bottom: 10px; /* Space below the recipe name */
   color: white;
   text-transform: capitalize;
-  font-style : oblique;
-  font-size : 20px;
+  font-style: oblique;
+  font-size: 20px;
 }
 
 .recipe-slide p {
   margin: 0; /* Reset margin for paragraph */
   color: white; /* Description color */
-
 }
 
 .recipe-slide button {

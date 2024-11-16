@@ -13,6 +13,14 @@ const RecipeDetail = () => {
     return <div>No recipe details available.</div>;
   }
 
+  // Check if nutrition data is available
+  const nutrition = recipe.nutrition || [];
+  const [calories, protein, fat, carbohydrates, fiber, sugar, other] =
+    nutrition;
+
+  // Log the nutrition data to the console
+  console.log("Nutrition Data:", nutrition);
+
   return (
     <div
       className="details"
@@ -26,9 +34,23 @@ const RecipeDetail = () => {
           <p>
             <strong>Preparation Time:</strong> {recipe.minutes} minutes
           </p>
-          <div className="nutrition">
-            <strong>Nutrition:</strong> {JSON.stringify(recipe.nutrition)}
-          </div>
+
+          {/* Display nutrition information if available */}
+          {nutrition.length > 0 && (
+            <div className="nutrition">
+              <strong>Nutrition:</strong>
+              <ul>
+                {calories && <li>Calories: {calories}</li>}
+                {protein && <li>Protein: {protein}g</li>}
+                {fat && <li>Fat: {fat}g</li>}
+                {carbohydrates && <li>Carbohydrates: {carbohydrates}g</li>}
+                {fiber && <li>Fiber: {fiber}g</li>}
+                {sugar && <li>Sugar: {sugar}g</li>}
+                {other && <li>Other: {other}</li>}
+              </ul>
+            </div>
+          )}
+
           <p>
             <strong>Number of Steps:</strong> {recipe.n_steps}
           </p>
@@ -50,16 +72,6 @@ const RecipeDetail = () => {
           <p>
             <strong>Number of Ingredients:</strong> {recipe.n_ingredients}
           </p>
-          {/* <p>
-            <strong>Tags:</strong>{" "}
-            {Array.isArray(recipe.tags)
-              ? recipe.tags.map((tag) => (
-                  <span key={tag} className="tag">
-                    {tag}
-                  </span>
-                ))
-              : "No tags available"}
-          </p> */}
         </div>
       </div>
 

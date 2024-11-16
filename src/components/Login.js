@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import videoFile from "../video/video.mp4"; // Import the video file
+import { isAuthenticated } from "../utils/auth"; // Import the authentication check
 
 const Login = () => {
   const [username, setUsername] = useState("");
@@ -8,10 +9,10 @@ const Login = () => {
   const [error, setError] = useState("");
   const navigate = useNavigate();
 
-  // Check if the user is already logged in
+  // Redirect if the user is already authenticated
   useEffect(() => {
-    if (localStorage.getItem("isLoggedIn")) {
-      navigate("/home"); // Redirect to home if already logged in
+    if (isAuthenticated()) {
+      navigate("/home"); // Redirect to /home if already authenticated
     }
   }, [navigate]);
 
@@ -28,13 +29,13 @@ const Login = () => {
       });
 
       if (response.ok) {
-        // Save the logged-in status
-        localStorage.setItem("isLoggedIn", true); // You can adjust this to match your auth system
+        // On successful login, store a flag in localStorage
+        localStorage.setItem("isLoggedIn", "true");
         alert("Login successful! Redirecting...");
-        navigate("/home"); // Redirect to recipe search page
+        navigate("/home"); // Redirect to home page
       } else {
         const data = await response.json();
-        setError(data.message); // Display error message if login fails
+        setError(data.message); // Display error if login fails
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -46,8 +47,7 @@ const Login = () => {
     <div className="login-container">
       <div>
         <video autoPlay loop muted className="video-background">
-          <source src={videoFile} type="video/mp4" />{" "}
-          {/* Corrected the video path */}
+          <source src={videoFile} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         <div className="overlay"></div>
