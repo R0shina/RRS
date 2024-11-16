@@ -207,6 +207,56 @@ li h3 {
   margin: 10px 0;
 }
 
+.recommendation {
+  display: flex;
+  justify-content: center;
+}
+
+.nutrition {
+  margin-top: 20px;
+}
+
+.nutrition h3 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+  /* color: #4CAF50;  */
+  font-family: "Italiana", sans-serif;
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  justify-items: center;
+}
+
+.nutrition-item {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  font-family: "Oswald", sans-serif;
+}
+
+.nutrition-label {
+  display: block;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.nutrition-value {
+  display: block;
+  font-size: 18px;
+  /* color: #4CAF50; */
+  margin-top: 5px;
+}
+
 /* Login Styles */
 .login-container,
 .signup-container {
@@ -499,3 +549,14 @@ label {
     font-size: 1.5em; /* Smaller font size for mobile */
   }
 }
+.recipeul,
+.pagination {
+  display: flex;
+  justify-content: center;
+}
+.paginationbutton {
+  display: flex;
+  width: 25%;
+  gap: 10px;
+}
+

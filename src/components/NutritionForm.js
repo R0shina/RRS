@@ -20,12 +20,18 @@ function NutritionForm() {
       .split(",")
       .map((ingredient) => ingredient.trim());
 
+    // Convert protein to a number if it's not empty
+    const proteinValue = protein ? Number(protein) : null;
+    const caloriesValue = calories ? Number(calories) : null;
+    const fatValue = fat ? Number(fat) : null;
+    const carbsValue = carbohydrates ? Number(carbohydrates) : null;
+
     // Log the form data before sending the request
     console.log("Submitting nutritional values and ingredients:", {
-      calories,
-      protein,
-      fat,
-      carbohydrates,
+      calories: caloriesValue,
+      protein: proteinValue,
+      fat: fatValue,
+      carbohydrates: carbsValue,
       ingredients: ingredientsList,
     });
 
@@ -37,7 +43,12 @@ function NutritionForm() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          preferences: { calories, protein, fat, carbohydrates },
+          preferences: {
+            calories: caloriesValue,
+            protein: proteinValue,
+            fat: fatValue,
+            carbohydrates: carbsValue,
+          },
           ingredients: ingredientsList,
         }),
       });
@@ -66,7 +77,6 @@ function NutritionForm() {
 
   const handleRecipeClick = (suggestion) => {
     // Navigate to the recipe detail page using the recipe ID
-    // navigate(`/recipe-detail/${recipeId}`);
     navigate("/recipe-detail", { state: { recipe: suggestion } });
   };
 
@@ -89,7 +99,7 @@ function NutritionForm() {
           <div>
             <label htmlFor="protein">Protein (g):</label>
             <input
-              type="number"
+              type="text"
               id="protein"
               value={protein}
               onChange={(e) => setProtein(e.target.value)}
@@ -139,23 +149,24 @@ function NutritionForm() {
 
       {/* Display recipe suggestions if any */}
       <h1>Recipe Suggestions</h1>
-      <ul>
-        {recipes.length > 0 ? (
-          recipes.map((recipe) => (
-            <li
-              key={recipe.id}
-              onClick={() => handleRecipeClick(recipe.id)}
-              style={{ cursor: "pointer" }}
-            >
-              <strong>{recipe.name}</strong> - Calories: {recipe.calories},
-              Protein: {recipe.protein}g, Fat: {recipe.fat}g, Carbs:{" "}
-              {recipe.carbs}g
-            </li>
-          ))
-        ) : (
-          <p>No recipes found. Try different nutritional values.</p>
-        )}
-      </ul>
+      <div className="recipeul">
+        <ul>
+          {recipes.length > 0 ? (
+            recipes.map((recipe) => (
+              <li
+                className="recipelist"
+                key={recipe.id}
+                onClick={() => handleRecipeClick(recipe)} // Pass entire recipe object
+                style={{ cursor: "pointer" }}
+              >
+                <strong>{recipe.name}</strong>
+              </li>
+            ))
+          ) : (
+            <p>No recipes found. Try different nutritional values.</p>
+          )}
+        </ul>
+      </div>
     </div>
   );
 }
