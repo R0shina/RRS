@@ -69,6 +69,23 @@ form {
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
+.formclass {
+  display: flex;
+  justify-content: center;
+}
+.formdata {
+  background-color: #95888d70;
+  width: 60%;
+}
+.formdata input::placeholder,
+.formdata label {
+  color: white;
+}
+.formdata input {
+  width: 97%;
+  background: #00000070;
+  color: white;
+}
 
 input {
   padding: 10px;
@@ -109,6 +126,8 @@ li {
   padding: 15px;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-transform: uppercase;
+  font-family: "Oswald", sans-serif;
 }
 
 li h3 {
@@ -382,7 +401,7 @@ label {
 
 .suggestions-dropdown li:hover {
   background-color: #f0f0f0;
-  color : #99afccbf;
+  color: #99afccbf;
 }
 
 /* Recipe Grid Styles */

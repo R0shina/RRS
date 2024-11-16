@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 function NutritionForm() {
   const [calories, setCalories] = useState("");
@@ -8,6 +9,8 @@ function NutritionForm() {
   const [ingredients, setIngredients] = useState(""); // New state for ingredients
   const [recipes, setRecipes] = useState([]);
   const [error, setError] = useState(null);
+
+  const navigate = useNavigate(); // Hook to navigate to different pages
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -61,77 +64,89 @@ function NutritionForm() {
     }
   };
 
+  const handleRecipeClick = (suggestion) => {
+    // Navigate to the recipe detail page using the recipe ID
+    // navigate(`/recipe-detail/${recipeId}`);
+    navigate("/recipe-detail", { state: { recipe: suggestion } });
+  };
+
   return (
     <div>
       <h2>Enter Desired Nutritional Values</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          <label htmlFor="calories">Calories:</label>
-          <input
-            type="number"
-            id="calories"
-            value={calories}
-            onChange={(e) => setCalories(e.target.value)}
-            required
-          />
-        </div>
+      <div className="formclass">
+        <form className="formdata" onSubmit={handleSubmit}>
+          <div>
+            <label htmlFor="calories">Calories:</label>
+            <input
+              type="number"
+              id="calories"
+              value={calories}
+              onChange={(e) => setCalories(e.target.value)}
+              required
+            />
+          </div>
 
-        <div>
-          <label htmlFor="protein">Protein (g):</label>
-          <input
-            type="number"
-            id="protein"
-            value={protein}
-            onChange={(e) => setProtein(e.target.value)}
-            required
-          />
-        </div>
+          <div>
+            <label htmlFor="protein">Protein (g):</label>
+            <input
+              type="number"
+              id="protein"
+              value={protein}
+              onChange={(e) => setProtein(e.target.value)}
+              required
+            />
+          </div>
 
-        <div>
-          <label htmlFor="fat">Fat (g):</label>
-          <input
-            type="number"
-            id="fat"
-            value={fat}
-            onChange={(e) => setFat(e.target.value)}
-            required
-          />
-        </div>
+          <div>
+            <label htmlFor="fat">Fat (g):</label>
+            <input
+              type="number"
+              id="fat"
+              value={fat}
+              onChange={(e) => setFat(e.target.value)}
+              required
+            />
+          </div>
 
-        <div>
-          <label htmlFor="carbohydrates">Carbohydrates (g):</label>
-          <input
-            type="number"
-            id="carbohydrates"
-            value={carbohydrates}
-            onChange={(e) => setCarbohydrates(e.target.value)}
-            required
-          />
-        </div>
+          <div>
+            <label htmlFor="carbohydrates">Carbohydrates (g):</label>
+            <input
+              type="number"
+              id="carbohydrates"
+              value={carbohydrates}
+              onChange={(e) => setCarbohydrates(e.target.value)}
+              required
+            />
+          </div>
 
-        <div>
-          <label htmlFor="ingredients">Ingredients (comma-separated):</label>
-          <input
-            type="text"
-            id="ingredients"
-            value={ingredients}
-            onChange={(e) => setIngredients(e.target.value)}
-            placeholder="e.g., chicken, rice, beans"
-          />
-        </div>
+          <div>
+            <label htmlFor="ingredients">Ingredients (comma-separated):</label>
+            <input
+              type="text"
+              id="ingredients"
+              value={ingredients}
+              onChange={(e) => setIngredients(e.target.value)}
+              placeholder="e.g., chicken, rice, beans"
+            />
+          </div>
 
-        <button type="submit">Get Recipe Recommendations</button>
-      </form>
+          <button type="submit">Get Recipe Recommendations</button>
+        </form>
+      </div>
 
       {/* Display error message if there's an error */}
       {error && <p style={{ color: "red" }}>{error}</p>}
 
       {/* Display recipe suggestions if any */}
-      <h3>Recipe Suggestions</h3>
+      <h1>Recipe Suggestions</h1>
       <ul>
         {recipes.length > 0 ? (
-          recipes.map((recipe, index) => (
-            <li key={index}>
+          recipes.map((recipe) => (
+            <li
+              key={recipe.id}
+              onClick={() => handleRecipeClick(recipe.id)}
+              style={{ cursor: "pointer" }}
+            >
               <strong>{recipe.name}</strong> - Calories: {recipe.calories},
               Protein: {recipe.protein}g, Fat: {recipe.fat}g, Carbs:{" "}
               {recipe.carbs}g

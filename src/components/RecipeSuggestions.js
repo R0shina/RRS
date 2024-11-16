@@ -54,7 +54,7 @@ const RecipeSuggestions = () => {
 
   return (
     <div>
-      <h1>Recipe Suggestions</h1>
+      <h1> Suggested Recipes</h1>
       {suggestions.length === 0 ? (
         <p>No suggestions available at this time.</p>
       ) : (
