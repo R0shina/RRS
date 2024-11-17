@@ -560,3 +560,13 @@ label {
   gap: 10px;
 }
 
+
+.searchbar_container{
+  width : 300px;
+
+}
+.searchbar_container label{
+  display:flex;
+  justify-content : center;
+
+}

@@ -7,8 +7,8 @@ const RecipeSearch = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const recipesPerPage = 30; 
-  const suggestionsPerPage = 100; 
+  const recipesPerPage = 30; // Adjusted to 30 recipes per page
+  const suggestionsPerPage = 10; // 10 suggestions per page
   const navigate = useNavigate();
 
   // Fetch suggestions based on ingredients entered
@@ -139,9 +139,9 @@ const RecipeSearch = () => {
       </header>
       <div className="searchpage">
         <div className="searchcontainer">
-          <form onSubmit={handleSubmit}>
+          <form className="searchbar_container" onSubmit={handleSubmit}>
             <div>
-              <label>Enter ingredients (comma separated): </label>
+              <label>Enter ingredients </label>
               <input
                 type="text"
                 value={ingredients}
@@ -200,7 +200,7 @@ const RecipeSearch = () => {
       )}
 
       {/* Pagination for Suggestions */}
-      {/* {isDropdownOpen && currentSuggestions.length > 0 && ( */}
+      {isDropdownOpen && currentSuggestions.length > 0 && (
         <div className="pagination">
           <div className="paginationbutton">
             <button
@@ -217,7 +217,7 @@ const RecipeSearch = () => {
             </button>
           </div>
         </div>
-      {/* )} */}
+      )}
     </div>
   );
 };

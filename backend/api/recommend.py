@@ -89,8 +89,15 @@ def recommend():
         query_vector = tfidf_vectorizer.transform([ingredients_query_str])
         cosine_similarities = cosine_similarity(query_vector, tfidf_matrix).flatten()
 
-        # Get indices of the most similar recipes
-        similar_indices = cosine_similarities.argsort()[-5:][::-1]
+        # Set a desired number of suggestions, e.g., 100 (or whatever number you want)
+        num_suggestions = 100  # Change this to the number of suggestions you want
+        
+        # Ensure we do not request more suggestions than available recipes
+        num_recipes_available = len(df)
+        num_suggestions = min(num_suggestions, num_recipes_available)  # Cap the suggestions to available recipes
+
+        # Get indices of the most similar recipes (up to the desired number)
+        similar_indices = cosine_similarities.argsort()[-num_suggestions:][::-1]
         recommended_recipes = df.iloc[similar_indices].to_dict(orient='records')
 
         # Filter recipes based on nutritional preferences if provided
