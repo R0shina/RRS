@@ -32,8 +32,6 @@ try:
                         'carbs': nutrition_data.get('carbohydrates', 0),
                     }
                 elif isinstance(nutrition_data, list):  # If it's a list, handle it accordingly
-                    # For simplicity, we'll assume the list contains nutrient data in a known order.
-                    # You can adjust the logic here based on your actual data format.
                     return {
                         'calories': nutrition_data[0] if len(nutrition_data) > 0 else 0,
                         'protein': nutrition_data[1] if len(nutrition_data) > 1 else 0,
@@ -72,11 +70,9 @@ def recommend():
         ingredients_query = request.json.get('ingredients', [])
         preferences = request.json.get('preferences', {})
 
-        # Convert preference values to integers (default to 0 if not provided or invalid)
-        calories = preferences.get('calories', 0)
-        protein = preferences.get('protein', 0)
-        fat = preferences.get('fat', 0)
-        carbohydrates = preferences.get('carbohydrates', 0)
+        # Log incoming data for debugging
+        print("Received ingredients:", ingredients_query)
+        print("Received preferences:", preferences)
 
         # Validate that ingredients are provided
         if not ingredients_query:
@@ -116,10 +112,10 @@ def recommend():
 
             # Apply relaxed filtering with a tolerance (+/-) for nutritional preferences
             if (
-                (calories == 0 or recipe_calories <= calories + 50) and  # Allow +50 calorie difference
-                (protein == 0 or recipe_protein >= protein - 5) and  # Allow -5g difference in protein
-                (fat == 0 or recipe_fat <= fat + 5) and  # Allow +5g difference in fat
-                (carbohydrates == 0 or recipe_carbs <= carbohydrates + 10)  # Allow +10g difference in carbs
+                (preferences.get('calories', 0) == 0 or recipe_calories <= preferences['calories'] + 50) and  # Allow +50 calorie difference
+                (preferences.get('protein', 0) == 0 or recipe_protein >= preferences['protein'] - 5) and  # Allow -5g difference in protein
+                (preferences.get('fat', 0) == 0 or recipe_fat <= preferences['fat'] + 5) and  # Allow +5g difference in fat
+                (preferences.get('carbohydrates', 0) == 0 or recipe_carbs <= preferences['carbohydrates'] + 10)  # Allow +10g difference in carbs
             ):
                 filtered_recipes.append(recipe)
 
