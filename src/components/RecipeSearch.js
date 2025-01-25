@@ -1,20 +1,60 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-
-import searchImage from "../video/search.jpg"; // Import useNavigate
 
 const RecipeSearch = () => {
   const [ingredients, setIngredients] = useState("");
   const [recipes, setRecipes] = useState([]);
-  const navigate = useNavigate(); // Initialize useNavigate
+  const [suggestions, setSuggestions] = useState([]);
+  const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const recipesPerPage = 30; // Adjusted to 30 recipes per page
+  const suggestionsPerPage = 10; // 10 suggestions per page
+  const navigate = useNavigate();
 
+  // Fetch suggestions based on ingredients entered
+  useEffect(() => {
+    if (ingredients) {
+      const fetchSuggestions = async () => {
+        try {
+          console.log("Fetching suggestions with ingredients:", ingredients);
+          const response = await fetch(`http://localhost:5005/api/search`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ ingredient: ingredients }),
+          });
+          const data = await response.json();
+          console.log("Suggestions fetched:", data);
+
+          if (Array.isArray(data)) {
+            setSuggestions(data);
+          } else {
+            console.error("Expected an array but received:", data);
+            setSuggestions([]);
+          }
+          setIsDropdownOpen(true);
+        } catch (error) {
+          console.error("Error fetching suggestions:", error);
+          setSuggestions([]);
+          setIsDropdownOpen(false);
+        }
+      };
+      fetchSuggestions();
+    } else {
+      setSuggestions([]);
+      setIsDropdownOpen(false);
+    }
+  }, [ingredients]);
+
+  // Handle form submission to get recipes based on selected ingredients
   const handleSubmit = async (event) => {
     event.preventDefault();
 
     const ingredientsArray = ingredients
+      .replace(/^,|,$/g, "") // Remove leading/trailing commas
       .split(",")
-      .map((ingredient) => ingredient.trim());
+      .map((ingredient) => ingredient.trim())
+      .filter((ingredient) => ingredient !== ""); // Remove empty ingredients
+    console.log("Ingredients array for submission:", ingredientsArray);
 
     try {
       const response = await fetch("http://localhost:5001/api/recommend", {
@@ -30,31 +70,67 @@ const RecipeSearch = () => {
       }
 
       const data = await response.json();
-      setRecipes(data);
+      console.log("Fetched recipes:", data);
+
+      // Check if the response contains a 'recipes' key and is an array
+      if (data && Array.isArray(data.recipes)) {
+        setRecipes(data.recipes);
+      } else {
+        console.error(
+          "Expected an array of recipes under the 'recipes' key but received:",
+          data
+        );
+        setRecipes([]);
+      }
     } catch (error) {
       console.error("Error fetching recommendations:", error);
+      setRecipes([]);
     }
   };
 
+  // Handle page change for suggestions pagination
+  const handlePageChange = (pageNumber) => {
+    setCurrentPage(pageNumber);
+    console.log("Changed to page:", pageNumber);
+  };
+
+  // Suggestions Pagination Logic
+  const indexOfLastSuggestion = currentPage * suggestionsPerPage;
+  const indexOfFirstSuggestion = indexOfLastSuggestion - suggestionsPerPage;
+  const currentSuggestions = suggestions.slice(
+    indexOfFirstSuggestion,
+    indexOfLastSuggestion
+  );
+
+  // Navigate to recipe detail page
   const handleRecipeClick = (recipe) => {
-    // Navigate to RecipeDetail and pass the recipe as state
+    console.log("Recipe clicked:", recipe);
     navigate("/recipe-detail", { state: { recipe } });
   };
 
+  const handleSuggestionClick = (suggestion) => {
+    console.log("Suggestion clicked:", suggestion);
+    navigate("/recipe-detail", { state: { recipe: suggestion } });
+    setIsDropdownOpen(false);
+  };
+
   const handleLogoutClick = () => {
-    // Navigate to the Logout page
+    console.log("Logging out...");
     navigate("/logout");
   };
 
+  console.log("Current Suggestions for Page:", currentSuggestions);
+
+  // Update ingredients state as user types
+  const handleSearchInputChange = (event) => {
+    setIngredients(event.target.value);
+  };
+
   return (
-    <div
-      className="search"
-      style={{
-        backgroundImage: `url(${searchImage})`,
-      }}
-    >
+    <div>
       <header className="heading">
-        <h1>Cook Smarter: Find Your Perfect Recipe!</h1>
+        <h1>Welcome to the Recipe Recommendation System</h1>
+        <h2>Cook Smarter: Find Your Perfect Recipe!</h2>
         <div className="logout-button">
           <button onClick={handleLogoutClick} style={{ float: "right" }}>
             Logout
@@ -62,22 +138,45 @@ const RecipeSearch = () => {
         </div>
       </header>
       <div className="searchpage">
-        <Link to="/predicted-recipes">See Predicted Recipes</Link>
+        <div className="searchcontainer">
+          <form className="searchbar_container" onSubmit={handleSubmit}>
+            <div>
+              <label>Enter ingredients </label>
+              <input
+                type="text"
+                value={ingredients}
+                onChange={handleSearchInputChange} // Update ingredients as user types
+                placeholder="Search recipes by ingredients..."
+              />
+            </div>
+            <button type="submit">Get Recipes</button>
+          </form>
+        </div>
 
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label>Enter ingredients (comma separated): </label>
-            <input
-              type="text"
-              value={ingredients}
-              onChange={(e) => setIngredients(e.target.value)}
-            />
+        {isDropdownOpen && (
+          <div className="suggestions-list">
+            <div className="suggestions-dropdown">
+              {currentSuggestions.length > 0 ? (
+                <ul>
+                  {currentSuggestions.map((suggestion, index) => (
+                    <li
+                      key={index}
+                      onClick={() => handleSuggestionClick(suggestion)}
+                    >
+                      {suggestion.ingredients.join(", ")}
+                    </li>
+                  ))}
+                </ul>
+              ) : (
+                <p>No suggestions available</p>
+              )}
+            </div>
           </div>
-          <button type="submit">Get Recipes</button>
-        </form>
+        )}
       </div>
+
       {recipes.length > 0 && (
-        <div className="recomendation">
+        <div className="recommendation">
           <div className="searchdata">
             <h2>Recommended Recipes</h2>
             <ul>
@@ -96,6 +195,26 @@ const RecipeSearch = () => {
                 </li>
               ))}
             </ul>
+          </div>
+        </div>
+      )}
+
+      {/* Pagination for Suggestions */}
+      {isDropdownOpen && currentSuggestions.length > 0 && (
+        <div className="pagination">
+          <div className="paginationbutton">
+            <button
+              onClick={() => handlePageChange(currentPage - 1)}
+              disabled={currentPage === 1} 
+            >
+              Previous
+            </button>
+            <button
+              onClick={() => handlePageChange(currentPage + 1)}
+              disabled={indexOfLastSuggestion >= suggestions.length} 
+            >
+              Next
+            </button>
           </div>
         </div>
       )}

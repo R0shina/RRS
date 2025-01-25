@@ -1,12 +1,20 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import videoFile from "../video/video.mp4"; // Import the video file
+import { isAuthenticated } from "../utils/auth"; // Import the authentication check
 
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  // Redirect if the user is already authenticated
+  useEffect(() => {
+    if (isAuthenticated()) {
+      navigate("/home"); // Redirect to /home if already authenticated
+    }
+  }, [navigate]);
 
   const handleSubmit = async (event) => {
     event.preventDefault();
@@ -21,11 +29,13 @@ const Login = () => {
       });
 
       if (response.ok) {
+        // On successful login, store a flag in localStorage
+        localStorage.setItem("isLoggedIn", "true");
         alert("Login successful! Redirecting...");
-        navigate("/recipe-search"); // Redirect to recipe search page
+        navigate("/home"); // Redirect to home page
       } else {
         const data = await response.json();
-        setError(data.message);
+        setError(data.message); // Display error if login fails
       }
     } catch (error) {
       console.error("Error during login:", error);
@@ -37,8 +47,7 @@ const Login = () => {
     <div className="login-container">
       <div>
         <video autoPlay loop muted className="video-background">
-          <source src={videoFile} type="video/mp4" />{" "}
-          {/* Corrected the video path */}
+          <source src={videoFile} type="video/mp4" />
           Your browser does not support the video tag.
         </video>
         <div className="overlay"></div>
