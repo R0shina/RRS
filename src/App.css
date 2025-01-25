@@ -69,6 +69,23 @@ form {
   border-radius: 8px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
 }
+.formclass {
+  display: flex;
+  justify-content: center;
+}
+.formdata {
+  background-color: #95888d70;
+  width: 60%;
+}
+.formdata input::placeholder,
+.formdata label {
+  color: white;
+}
+.formdata input {
+  width: 97%;
+  background: #00000070;
+  color: white;
+}
 
 input {
   padding: 10px;
@@ -109,6 +126,8 @@ li {
   padding: 15px;
   border-radius: 5px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  text-transform: uppercase;
+  font-family: "Oswald", sans-serif;
 }
 
 li h3 {
@@ -186,6 +205,56 @@ li h3 {
   padding: 10px;
   border-radius: 5px;
   margin: 10px 0;
+}
+
+.recommendation {
+  display: flex;
+  justify-content: center;
+}
+
+.nutrition {
+  margin-top: 20px;
+}
+
+.nutrition h3 {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  text-align: center;
+  /* color: #4CAF50;  */
+  font-family: "Italiana", sans-serif;
+}
+
+.nutrition-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 15px;
+  justify-items: center;
+}
+
+.nutrition-item {
+  background-color: #fff;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 90%;
+  font-family: "Oswald", sans-serif;
+}
+
+.nutrition-label {
+  display: block;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+
+.nutrition-value {
+  display: block;
+  font-size: 18px;
+  /* color: #4CAF50; */
+  margin-top: 5px;
 }
 
 /* Login Styles */
@@ -382,7 +451,7 @@ label {
 
 .suggestions-dropdown li:hover {
   background-color: #f0f0f0;
-  color : #99afccbf;
+  color: #99afccbf;
 }
 
 /* Recipe Grid Styles */
@@ -479,4 +548,25 @@ label {
   h1 {
     font-size: 1.5em; /* Smaller font size for mobile */
   }
+}
+.recipeul,
+.pagination {
+  display: flex;
+  justify-content: center;
+}
+.paginationbutton {
+  display: flex;
+  width: 25%;
+  gap: 10px;
+}
+
+
+.searchbar_container{
+  width : 300px;
+
+}
+.searchbar_container label{
+  display:flex;
+  justify-content : center;
+
 }

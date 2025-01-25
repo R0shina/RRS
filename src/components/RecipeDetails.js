@@ -1,11 +1,12 @@
 import React from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom"; // Import useNavigate
 import RecipeSuggestions from "./RecipeSuggestions"; // Import the suggestions component
 import "../../src/App.css"; // Import the CSS file
 import searchImage from "../video/step.jpg";
 
 const RecipeDetail = () => {
   const location = useLocation();
+  const navigate = useNavigate(); // Initialize navigate function
   const { recipe } = location.state || {};
 
   // Check if the recipe exists
@@ -13,13 +14,25 @@ const RecipeDetail = () => {
     return <div>No recipe details available.</div>;
   }
 
-  // Check if nutrition data is available
-  const nutrition = recipe.nutrition || [];
-  const [calories, protein, fat, carbohydrates, fiber, sugar, other] =
-    nutrition;
+  // Convert nutrition string to array if it's not already
+  const nutritionString = recipe.nutrition || "[]"; // Handle cases where nutrition might be undefined
+  const nutrition = JSON.parse(nutritionString); // Convert nutrition string to array
 
-  // Log the nutrition data to the console
-  console.log("Nutrition Data:", nutrition);
+  // Default values for nutrition data in case any field is missing
+  const [
+    calories = "N/A",
+    protein = "N/A",
+    fat = "N/A",
+    carbohydrates = "N/A",
+    fiber = "N/A",
+    sugar = "N/A",
+    other = "N/A",
+  ] = nutrition;
+
+  // Function to handle the back button click
+  const goBackHome = () => {
+    navigate("/"); // Navigate to the home page
+  };
 
   return (
     <div
@@ -35,21 +48,40 @@ const RecipeDetail = () => {
             <strong>Preparation Time:</strong> {recipe.minutes} minutes
           </p>
 
-          {/* Display nutrition information if available */}
-          {nutrition.length > 0 && (
-            <div className="nutrition">
-              <strong>Nutrition:</strong>
-              <ul>
-                {calories && <li>Calories: {calories}</li>}
-                {protein && <li>Protein: {protein}g</li>}
-                {fat && <li>Fat: {fat}g</li>}
-                {carbohydrates && <li>Carbohydrates: {carbohydrates}g</li>}
-                {fiber && <li>Fiber: {fiber}g</li>}
-                {sugar && <li>Sugar: {sugar}g</li>}
-                {other && <li>Other: {other}</li>}
-              </ul>
+          {/* Redesigned Nutrition Section */}
+          <div className="nutrition">
+            <h3>Nutrition Information</h3>
+            <div className="nutrition-grid">
+              <div className="nutrition-item">
+                <span className="nutrition-label">Calories</span>
+                <span className="nutrition-value">{calories} kcal</span>
+              </div>
+              <div className="nutrition-item">
+                <span className="nutrition-label">Protein</span>
+                <span className="nutrition-value">{protein} g</span>
+              </div>
+              <div className="nutrition-item">
+                <span className="nutrition-label">Fat</span>
+                <span className="nutrition-value">{fat} g</span>
+              </div>
+              <div className="nutrition-item">
+                <span className="nutrition-label">Carbs</span>
+                <span className="nutrition-value">{carbohydrates} g</span>
+              </div>
+              <div className="nutrition-item">
+                <span className="nutrition-label">Fiber</span>
+                <span className="nutrition-value">{fiber} g</span>
+              </div>
+              <div className="nutrition-item">
+                <span className="nutrition-label">Sugar</span>
+                <span className="nutrition-value">{sugar} g</span>
+              </div>
+              <div className="nutrition-item">
+                <span className="nutrition-label">Other</span>
+                <span className="nutrition-value">{other}</span>
+              </div>
             </div>
-          )}
+          </div>
 
           <p>
             <strong>Number of Steps:</strong> {recipe.n_steps}
@@ -72,6 +104,11 @@ const RecipeDetail = () => {
           <p>
             <strong>Number of Ingredients:</strong> {recipe.n_ingredients}
           </p>
+
+          {/* Add a button to go back to the home page */}
+          <button onClick={goBackHome} className="go-back-btn">
+            Go Back to Home
+          </button>
         </div>
       </div>
 

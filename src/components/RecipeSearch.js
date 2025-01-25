@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-import Fuse from "fuse.js";
 
 const RecipeSearch = () => {
   const [ingredients, setIngredients] = useState("");
@@ -8,7 +7,8 @@ const RecipeSearch = () => {
   const [suggestions, setSuggestions] = useState([]);
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [currentPage, setCurrentPage] = useState(1);
-  const recipesPerPage = 10; // Number of recipes per page
+  const recipesPerPage = 30; // Adjusted to 30 recipes per page
+  const suggestionsPerPage = 10; // 10 suggestions per page
   const navigate = useNavigate();
 
   // Fetch suggestions based on ingredients entered
@@ -16,14 +16,14 @@ const RecipeSearch = () => {
     if (ingredients) {
       const fetchSuggestions = async () => {
         try {
-          console.log("Fetching suggestions with ingredients:", ingredients); // Log the ingredients being used to fetch suggestions
+          console.log("Fetching suggestions with ingredients:", ingredients);
           const response = await fetch(`http://localhost:5005/api/search`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ ingredient: ingredients }),
           });
           const data = await response.json();
-          console.log("Suggestions fetched:", data); // Log the suggestions data
+          console.log("Suggestions fetched:", data);
 
           if (Array.isArray(data)) {
             setSuggestions(data);
@@ -50,8 +50,11 @@ const RecipeSearch = () => {
     event.preventDefault();
 
     const ingredientsArray = ingredients
+      .replace(/^,|,$/g, "") // Remove leading/trailing commas
       .split(",")
-      .map((ingredient) => ingredient.trim());
+      .map((ingredient) => ingredient.trim())
+      .filter((ingredient) => ingredient !== ""); // Remove empty ingredients
+    console.log("Ingredients array for submission:", ingredientsArray);
 
     try {
       const response = await fetch("http://localhost:5001/api/recommend", {
@@ -67,16 +70,16 @@ const RecipeSearch = () => {
       }
 
       const data = await response.json();
-      console.log("Fetched recipes:", data); // Log the fetched recipe data
+      console.log("Fetched recipes:", data);
 
-      // Check if the response is an object with a message
-      if (data && data.message === "No matching recipes found") {
-        setRecipes([]);
-        console.log("No matching recipes found.");
-      } else if (Array.isArray(data)) {
-        setRecipes(data);
+      // Check if the response contains a 'recipes' key and is an array
+      if (data && Array.isArray(data.recipes)) {
+        setRecipes(data.recipes);
       } else {
-        console.error("Expected an array of recipes but received:", data);
+        console.error(
+          "Expected an array of recipes under the 'recipes' key but received:",
+          data
+        );
         setRecipes([]);
       }
     } catch (error) {
@@ -85,64 +88,49 @@ const RecipeSearch = () => {
     }
   };
 
-  // Handle page change for pagination
+  // Handle page change for suggestions pagination
   const handlePageChange = (pageNumber) => {
     setCurrentPage(pageNumber);
+    console.log("Changed to page:", pageNumber);
   };
 
-  // Fuse.js setup for fuzzy matching
-  const fuse = new Fuse(suggestions, {
-    keys: ["ingredients"], // Search within the ingredients
-    threshold: 0.3, // Adjust this value for fuzziness (lower means stricter, higher means looser match)
-  });
+  // Suggestions Pagination Logic
+  const indexOfLastSuggestion = currentPage * suggestionsPerPage;
+  const indexOfFirstSuggestion = indexOfLastSuggestion - suggestionsPerPage;
+  const currentSuggestions = suggestions.slice(
+    indexOfFirstSuggestion,
+    indexOfLastSuggestion
+  );
 
-  const handleSearchInputChange = (e) => {
-    const query = e.target.value;
-    setIngredients(query);
-    console.log("User input changed:", query); // Log user input
-
-    // If the input is empty, reset suggestions
-    if (query) {
-      const results = fuse.search(query).map((result) => result.item);
-      console.log("Fuse.js search results:", results); // Log Fuse.js search results
-      setSuggestions(results);
-      setIsDropdownOpen(true);
-    } else {
-      setSuggestions([]);
-      setIsDropdownOpen(false);
-    }
-  };
-
-  // Navigate to recipe detail page with ingredient or recipe details
+  // Navigate to recipe detail page
   const handleRecipeClick = (recipe) => {
+    console.log("Recipe clicked:", recipe);
     navigate("/recipe-detail", { state: { recipe } });
   };
 
-  // Navigate to recipe detail page with suggestion ingredient
   const handleSuggestionClick = (suggestion) => {
-    // Ensure suggestion contains all the needed recipe data
-    console.log("Suggestion clicked:", suggestion); // Log the suggestion clicked
+    console.log("Suggestion clicked:", suggestion);
     navigate("/recipe-detail", { state: { recipe: suggestion } });
     setIsDropdownOpen(false);
   };
 
-  // Slice the recipes to show only 10 per page
-  const indexOfLastRecipe = currentPage * recipesPerPage;
-  const indexOfFirstRecipe = indexOfLastRecipe - recipesPerPage;
-  const currentRecipes = recipes.slice(indexOfFirstRecipe, indexOfLastRecipe);
-
   const handleLogoutClick = () => {
+    console.log("Logging out...");
     navigate("/logout");
   };
 
-  console.log("Current Recipes for Page:", currentRecipes); // Log the current recipes being displayed
+  console.log("Current Suggestions for Page:", currentSuggestions);
+
+  // Update ingredients state as user types
+  const handleSearchInputChange = (event) => {
+    setIngredients(event.target.value);
+  };
 
   return (
     <div>
       <header className="heading">
         <h1>Welcome to the Recipe Recommendation System</h1>
         <h2>Cook Smarter: Find Your Perfect Recipe!</h2>
-
         <div className="logout-button">
           <button onClick={handleLogoutClick} style={{ float: "right" }}>
             Logout
@@ -151,13 +139,13 @@ const RecipeSearch = () => {
       </header>
       <div className="searchpage">
         <div className="searchcontainer">
-          <form onSubmit={handleSubmit}>
+          <form className="searchbar_container" onSubmit={handleSubmit}>
             <div>
-              <label>Enter ingredients (comma separated): </label>
+              <label>Enter ingredients </label>
               <input
                 type="text"
                 value={ingredients}
-                onChange={handleSearchInputChange} // Use the modified input handler
+                onChange={handleSearchInputChange} // Update ingredients as user types
                 placeholder="Search recipes by ingredients..."
               />
             </div>
@@ -165,19 +153,17 @@ const RecipeSearch = () => {
           </form>
         </div>
 
-        {/* Suggestions dropdown */}
         {isDropdownOpen && (
           <div className="suggestions-list">
             <div className="suggestions-dropdown">
-              {suggestions.length > 0 ? (
+              {currentSuggestions.length > 0 ? (
                 <ul>
-                  {suggestions.map((suggestion, index) => (
+                  {currentSuggestions.map((suggestion, index) => (
                     <li
                       key={index}
-                      onClick={() => handleSuggestionClick(suggestion)} // Navigate on suggestion click
+                      onClick={() => handleSuggestionClick(suggestion)}
                     >
-                      {suggestion.ingredients.join(", ")}{" "}
-                      {/* Join ingredients with commas */}
+                      {suggestion.ingredients.join(", ")}
                     </li>
                   ))}
                 </ul>
@@ -189,18 +175,18 @@ const RecipeSearch = () => {
         )}
       </div>
 
-      {currentRecipes.length > 0 && (
-        <div className="recomendation">
+      {recipes.length > 0 && (
+        <div className="recommendation">
           <div className="searchdata">
             <h2>Recommended Recipes</h2>
             <ul>
-              {currentRecipes.map((recipe, index) => (
+              {recipes.map((recipe, index) => (
                 <li key={index}>
                   <h3>{recipe.name}</h3>
                   <p>
                     <strong>Ingredients:</strong>{" "}
                     {Array.isArray(recipe.ingredients)
-                      ? recipe.ingredients.join(", ") // Join ingredients with commas
+                      ? recipe.ingredients.join(", ")
                       : recipe.ingredients}
                   </p>
                   <button onClick={() => handleRecipeClick(recipe)}>
@@ -210,17 +196,22 @@ const RecipeSearch = () => {
               ))}
             </ul>
           </div>
-          {/* Pagination */}
-          <div className="pagination">
+        </div>
+      )}
+
+      {/* Pagination for Suggestions */}
+      {isDropdownOpen && currentSuggestions.length > 0 && (
+        <div className="pagination">
+          <div className="paginationbutton">
             <button
               onClick={() => handlePageChange(currentPage - 1)}
-              disabled={currentPage === 1}
+              disabled={currentPage === 1} 
             >
-              Prev
+              Previous
             </button>
             <button
               onClick={() => handlePageChange(currentPage + 1)}
-              disabled={currentPage * recipesPerPage >= recipes.length}
+              disabled={indexOfLastSuggestion >= suggestions.length} 
             >
               Next
             </button>

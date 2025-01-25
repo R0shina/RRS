@@ -47,14 +47,14 @@ const RecipeSuggestions = () => {
     speed: 500,
     slidesToShow: 3,
     slidesToScroll: 3,
-    autoplay: false,
-    autoplaySpeed: 3000,
+    autoplay: true,
+    autoplaySpeed: 5000,
     arrows: false,
   };
 
   return (
     <div>
-      <h1>Recipe Suggestions</h1>
+      <h1> Suggested Recipes</h1>
       {suggestions.length === 0 ? (
         <p>No suggestions available at this time.</p>
       ) : (
